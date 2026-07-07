@@ -234,7 +234,12 @@ async function callLoopbackJsonRpc(params: {
   if (!text.trim()) {
     return {};
   }
-  const parsed = JSON.parse(text) as LoopbackJsonRpcResponse;
+  let parsed: LoopbackJsonRpcResponse;
+  try {
+    parsed = JSON.parse(text) as LoopbackJsonRpcResponse;
+  } catch {
+    throw new Error("mcp loopback returned malformed JSON");
+  }
   if (parsed.error?.message) {
     throw new Error(`mcp loopback json-rpc error: ${parsed.error.message}`);
   }
