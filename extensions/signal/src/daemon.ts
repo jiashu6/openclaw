@@ -73,6 +73,11 @@ function bindSignalCliOutput(params: {
       }
     }
   });
+  // Pipe errors surface here before child exit; log them so the daemon's
+  // error sink stays consistent without racing the exit/close handlers.
+  params.stream?.on("error", (err) => {
+    params.error(`signal-cli stream error: ${err instanceof Error ? err.message : String(err)}`);
+  });
 }
 
 function resolveSignalCliConfigPath(raw: string): string {
@@ -175,6 +180,7 @@ export function spawnSignalDaemon(opts: SignalDaemonOpts): SignalDaemonHandle {
 }
 
 export const testApi = {
+  bindSignalCliOutput,
   buildDaemonArgs,
   classifySignalCliLogLine,
   resolveSignalCliConfigPath,
